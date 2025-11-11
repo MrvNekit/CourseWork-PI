@@ -1,0 +1,25 @@
+﻿@model AppointmentModel?
+
+@if (Model != null) {
+    <h1>@Model.StartTime - @Model.EndTime</h1>
+    <div>
+        Фамилия, имя, отчество<br />
+        <input asp-for="LastName" type="text" name="LastName" id="lastNameInput" placeholder="Иванов" readonly/>
+        <input asp-for="FirstName" type="text" name="FirstName" id="firstNameInput" placeholder="Иван" readonly />
+        <input asp-for="MiddleName" type=" text" name="MiddleName" id="middleNameInput" placeholder="Иванович (при наличие)" readonly/>
+    </div>
+
+    <h4>Номер СНИЛС</h4>
+    <input asp-for="SNILS" type="text" name="SNILS" id="snilsInput" placeholder="123-456-789-10" readonly /><br />
+    <h4>Данные паспорта</h4>
+    <input asp-for="PassportSeries" type="text" name="PassportSeries" id="passportSeriesInput" placeholder="1234" readonly />
+    <input asp-for="PassportNumber" type="text" name="PassportNumber" id="passportNumberInput" placeholder="567890" readonly /><br />
+    <h4>Номер телефона</h4>
+    <input asp-for="PhoneNumber" type="text" name="PhoneNumber" id="phoneNumberInput" placeholder="+7(123)4567890" readonly /><br />
+}
+else
+{
+    <div class="alert alert-warning">
+        Выберите запись!
+    </div>
+}

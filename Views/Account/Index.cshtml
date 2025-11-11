@@ -1,0 +1,143 @@
+﻿@{
+    ViewData["Title"] = "Аккаунт";
+}
+
+@model List<TimePartModel>
+<h3>Записи</h3>
+<div class="form-section">
+<h2>
+    <i class="fas fa-calendar-alt"></i>
+    Расписание пациентов
+</h2>
+<div id="timeSelectionContainer">
+    <input type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" name="Date" id="dateInput" required /><br />
+    <div id="timetableContainer">
+        @await Html.PartialAsync("_SchedulePartialView", null)
+    </div>
+
+    <div id="timetableSpinner" class="text-center d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+        <p>Обрабатываем запрос...</p>
+    </div>
+</div>
+</div>
+
+<div class="form-section">
+<h2>
+    <i class="fas fa-user"></i>
+    Информация о пациенте
+</h2>
+<div id="appointmentContainer">
+    <div id="appointmentInfoContainer">
+        @await Html.PartialAsync("_AppointmentInfoPartialView", null)
+    </div>
+
+    <div id="appointmentInfoSpinner" class="text-center d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+        <p>Обрабатываем запрос...</p>
+    </div>
+</div>
+</div>
+
+@section Scripts {
+    <script>
+        const dateInput = document.getElementById('dateInput');
+        const timetableContainer = document.getElementById('timetableContainer');
+        const timetableSpinner = document.getElementById('timetableSpinner');
+        const infoContainer = document.getElementById('appointmentInfoContainer');
+        const infoSpinner = document.getElementById('appointmentInfoSpinner');
+        
+    
+        dateInput.addEventListener('change', updateAppointmentsView);
+
+        // Dynamically load Appointments to improve loading speed. 
+        updateAppointmentsView();
+    
+        //#region Ajax requests
+        function updateAppointmentsView() {
+            unsubscribeAll();
+
+            timetableSpinner.classList.remove('d-none');
+            timetableContainer.classList.add("d-none")
+    
+            let model = {
+                    Date : dateInput.value,
+                    Direction : null
+                            };
+
+            // AJAX call to get partial view
+            fetch('/Account/GetSchedule', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(model)
+            })
+            .then(response => response.text())
+            .then(html => {
+                timetableContainer.innerHTML = html;
+                subscribeAll();
+                timetableSpinner.classList.add('d-none');
+                timetableContainer.classList.remove('d-none')
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                timetableSpinner.classList.add('d-none');
+                timetableContainer.classList.remove("d-none")
+                timetableContainer.innerHTML = '<div class="alert alert-danger">Произошла ошибка при получении данных!. Пожалуйста попробуйте снова.</div>';
+            });
+        }
+
+        function updateAppointmentInfoView(index) {
+            let model = index;
+
+
+            // AJAX call to get partial view
+            fetch('Account/GetAppointmentInfo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(model)
+            })
+            .then(response => response.text())
+            .then(html => {
+                infoContainer.innerHTML = html;
+                infoSpinner.classList.add("d-none");
+                infoContainer.classList.remove("d-none")
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                infoSpinner.classList.add('d-none');
+                infoContainer.classList.remove("d-none")
+                infoContainer.innerHTML = '<div class="alert alert-danger">Произошла ошибка при получении данных!. Пожалуйста попробуйте снова.</div>';
+            });
+        }
+        //#endregion
+
+        //#region GUI Interactions
+        function subscribeAll() {
+            timetableContainer.querySelectorAll('input[name="SelectedNumber"]').forEach(radio => {
+                radio.addEventListener('change', selected);
+            });
+        }
+
+        function unsubscribeAll() {
+            timetableContainer.querySelectorAll('input[name="SelectedNumber"]').forEach(radio => {
+                radio.removeEventListener('change', selected);
+            });
+        }
+        
+        function selected() {
+            if (this.checked) {
+                updateAppointmentInfoView(this.value);
+                infoContainer.scrollIntoView();
+            }
+        }
+        //#endregion
+    </script>
+}

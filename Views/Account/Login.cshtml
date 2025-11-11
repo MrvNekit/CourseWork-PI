@@ -1,0 +1,27 @@
+﻿@using Microsoft.AspNetCore.Mvc.ModelBinding
+@{
+    ViewData["Title"] = "Логин";
+}
+
+@model AuthentificationModel
+
+<form method="post">
+    <div class="content">
+        <h3>Вход</h3>
+        @if (ViewData.ModelState["Login"]?.ValidationState == ModelValidationState.Invalid)
+        {
+            <div class="alert alert-danger">Пользователь не найден!</div>
+        }
+        @if (ViewData.ModelState["Password"]?.ValidationState == ModelValidationState.Invalid)
+        {
+            <div class="alert alert-danger">Неправильно введён пароль!</div>
+        }
+        <label>Логин</label><br />
+        <input type="text" name="login" asp-for="Login" required /><br />
+        
+        <label>Пароль</label><br />
+        <input type="text" name="Password" asp-for="Password" required/><br />
+    
+        <button type="submit" class="btn btn-primary">Подтвердить</button>
+    </div>
+</form>

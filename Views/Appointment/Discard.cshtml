@@ -1,0 +1,138 @@
+﻿@using Microsoft.AspNetCore.Mvc.ModelBinding
+@{
+    ViewData["Title"] = "Отменить запись";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="popup-overlay active" id="confirmPopup">
+        <div class="popup">
+            <button class="close-btn">&times;</button>
+            <h2>Запись удалена</h2>
+            <p>@TempData["SuccessMessage"]</p>
+            <div class="popup-buttons">
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-primary">
+                    <i class="fas fa-check"></i>
+                    ОК
+                </a>
+            </div>
+        </div>
+    </div>
+}
+
+@model AppointmentDataModel
+<h3>Отменить запись</h3>
+<form method="post">
+    <div class="form-section">
+        <h2>
+            <i class="fas fa-user"></i>
+            Личные данные
+        </h2>
+        <div id="personalDataContainer">
+            Фамилия, имя, отчество<br />
+            <input asp-for="LastName" type="text" name="LastName" id="lastNameInput" placeholder="Иванов" />
+            <input asp-for="FirstName" type="text" name="FirstName" id="firstNameInput" placeholder="Иван" />
+            <input asp-for="MiddleName" type=" text" name="MiddleName" id="middleNameInput" placeholder="Иванович (при наличие)" />
+            <br />
+            Номер СНИЛС<br />
+            <input asp-for="SNILS" type="text" name="SNILS" id="snilsInput" placeholder="123-456-789-10" /><br />
+            Данные паспорта<br />
+            <input asp-for="PassportSeries" type="text" name="PassportSeries" id="passportSeriesInput" placeholder="1234" />
+            <input asp-for="PassportNumber" type="text" name="PassportNumber" id="passportNumberInput" placeholder="567890" /><br />
+            Номер телефона<br />
+            <input asp-for="PhoneNumber" type="text" name="PhoneNumber" id="phoneNumberInput" placeholder="+7(123)4567890" /><br />
+        </div>
+    </div>
+    <div class="form-section">
+        <h2>
+            <i class="fas fa-calendar-alt"></i>
+            Выбор отделения
+        </h2>
+        <button type="button" id="searchButton" class="btn btn-primary">Найти</button>
+        <div id="appointmentContainer">
+            @if (ViewData.ModelState["SelectedNumber"]?.ValidationState == ModelValidationState.Invalid)
+            {
+                <div class="alert alert-danger">Выберите направление!</div>
+            }
+            <div id="appointmentInfoContainer">
+                @await Html.PartialAsync("_SchedulePartialView", Model.Timetables)
+            </div>  
+        
+            <div id="loadingSpinner" class="text-center d-none">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Загрузка...</span>
+                </div>
+                <p>Обрабатываем запрос...</p>
+            </div>
+        </div>
+        <br />
+        <button type="submit" class="btn btn-primary">Подтвердить</button>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        const firstNameInput = document.getElementById('firstNameInput');
+        const lastNameInput = document.getElementById('lastNameInput');
+        const middleNameInput = document.getElementById('middleNameInput');
+        const snilsInput = document.getElementById('snilsInput');
+        const passportSeriesInput = document.getElementById('passportSeriesInput');
+        const passportNumberInput = document.getElementById('passportNumberInput');
+        const phoneNumberInput = document.getElementById('phoneNumberInput');
+
+        const container = document.getElementById('appointmentInfoContainer');
+        const spinner = document.getElementById('loadingSpinner');
+
+        const searchButton = document.getElementById('searchButton');
+
+        const closeButton = document.querySelectorAll('.close-btn');
+
+        searchButton.addEventListener('click', updateView);
+
+        closeButton.forEach(button => {
+                button.addEventListener('click', function() {
+                    confirmPopup.classList.remove('active');
+                });
+            });
+
+        function updateView() {
+            spinner.classList.remove('d-none');
+            container.classList.add('d-none')
+
+            let model = {
+                FirstName : firstNameInput.value,
+                MiddleName : middleNameInput.value,
+                LastName : lastNameInput.value,
+                SNILS : snilsInput.value,
+                PassportSeries : passportSeriesInput.value,
+                PassportNumber : passportNumberInput.value,
+                PhoneNumber : phoneNumberInput.value
+                        };
+
+            console.log(model);
+
+
+            // AJAX call to get partial view
+            fetch('/Appointment/GetUserAppointments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(model)
+            })
+            .then(response => response.text())
+            .then(html => {
+                container.innerHTML = html;
+                spinner.classList.add('d-none');
+                container.classList.remove('d-none')
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                spinner.classList.add('d-none');
+                container.classList.remove("d-none")
+                container.innerHTML = '<div class="alert alert-danger">Произошла ошибка при получении данных!. Пожалуйста попробуйте снова.</div>';
+            });
+            
+        }
+    </script>
+}

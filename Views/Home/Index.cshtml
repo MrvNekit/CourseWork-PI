@@ -1,0 +1,21 @@
+﻿@{
+    ViewData["Title"] = "Домашняя страница";
+}
+
+<div class="content">
+    <h3>Добро пожаловать</h3>
+    <a asp-area="" asp-controller="Appointment" asp-action="Index" class="btn btn-main">
+        <i class="fas fa-calendar-plus"></i>
+        Записаться на приём
+    </a>
+
+    <a asp-area="" asp-controller="Appointment" asp-action="Discard" class="btn btn-danger">
+        <i class="fas fa-calendar-times"></i>
+        Отменить запись
+    </a>
+
+    <a a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-light">
+        <i class="fas fa-sign-in-alt"></i>
+        Войти в систему
+    </a>
+</div>
