@@ -1,3 +1,15 @@
+Сборка:
+1.	Запустить проект AppointmentApplication.sln.
+2.	При отсутствии пакета Microsoft.AspNetCore ( который предоставляется платформой Microsoft .NET выше 3-й версии ).
+3.	Для работы Sql сервера необходимы Microsoft.EntityFrameworkCore, такие как:
+   1.	EntityFramework 6.5.1
+   2.	Microsoft.EntityFrameworkCore.Sqlite 9.0.9
+   3.	Microsoft.EntityFrameworkCore.Tools 8.0.11
+   Для их установки можно воспользоваться средствами NuGet в Visual Studio. 
+   Можно нажать по решению и выбрать пункт "Восстановить пакеты NuGet". Также можно воспользоваться автоматическим восстановлением через меню PowerShell в нижней части Visual Studio с помощью команды dotnet restore или msbuild -t:restore.
+   Альтернативным способом восстановления пакетов является "Управление пакетами NuGet", к которому можно обратиться также нажав по решению или во вкладке "Проект" и установить необходимые пакеты.
+	
+
 Запуск:
 1.	Запустить AppointmentApplication.exe
 2.	Перейти по локальному адресу на порт 5000 или http://localhost:5000/
